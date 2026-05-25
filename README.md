@@ -1,284 +1,170 @@
 # Eternal Recorder
 
-## Overview
+Desktop screen recorder with floating camera overlay, live scenes, and RTMP streaming.
 
-**Eternal Recorder** is a minimal desktop screen recorder application built with **Electron** and **React**. The application allows users to record their computer screen while displaying a customizable floating camera window.
-
-- **Version**: 1.1.1
+- **Version**: 1.1.8
 - **Author**: Eternal Legend
-- **Platform**: Windows
-- **Technology Stack**: Electron, React 18, Vite
-
----
+- **Platforms**: Windows 10+ · Linux (AppImage/DEB)
+- **Stack**: Electron 30 · React 18 · Vite 5 · FFmpeg · i18next
 
 ## Features
 
 ### Screen Recording
-- Record computer screen with system audio
-- Record microphone audio with optional system audio mixing
-- Camera preview in floating window
-- Customizable camera border (solid, gradient, neon glow)
-- Multiple camera sources
-- Multiple microphones
+- Full screen or specific window capture
+- Floating circular camera window (always on top, resizable, draggable)
+- Customizable border: solid color, gradient, neon glow
+- System audio + microphone mixing via AudioContext
+- **Camera Only** mode (fullscreen webcam)
+- **Audio Only** mode
+- **Multi-Audio**: separate files for system audio and microphone
+- **Scene Mode**: canvas-based recording with live scene switching
+- Output formats: WebM (native), MP4, MKV, MP3, WAV, FLAC (via FFmpeg)
+- Beep on recording start/stop
 
-### Live Streaming (Coming Soon)
-- RTMP streaming support
-- Multiple simultaneous destinations
-- Pre-configured platforms (YouTube, Facebook, Twitch)
-- Custom RTMP destinations
+### Scenes
+- Save full configuration snapshots (source, camera, mic, audio, border, format)
+- Apply scenes before recording
+- Switch scenes live during recording (canvas mode)
+- Rename and delete with confirmation
+- Persisted in `scenes.json`
 
-### Settings
-- Multi-language support (English, Portuguese)
+### Live Streaming (RTMP)
+- Multiple simultaneous destinations (YouTube, Facebook, Twitch, custom RTMP)
+- Destinations encrypted with AES-256-CBC
+- Per-destination individual control
+- FFmpeg encoding with optimized presets
 
+### Internationalization
+- **25 languages**: EN, PT-BR, ES, ZH, FR, DE, IT, JA, VI, TH, HI, NL, AF, EL, RU, UK, KO, TR, AR, HE, CA, EO, ZH-TW, ZH-YUE, BO
+- Automatic system language detection
+- Persisted choice
 
----
+### Global Shortcuts (customizable)
 
-## General Information
+| Action | Default |
+|--------|---------|
+| Start Recording | `Ctrl+Shift+R` |
+| Stop Recording | `Ctrl+Shift+S` |
+| Pause/Resume | `Ctrl+Shift+P` |
+| Mute Microphone | `Ctrl+Shift+M` |
+| Toggle System Audio | `Ctrl+Shift+A` |
+| Show/Hide Window | `Ctrl+Shift+H` |
+
+### Recording Quality (configurable)
+- FPS: 24/30/60
+- Video bitrate: 1–8 Mbps
+- Audio bitrate: 96–320 kbps
+- Resolution: source, 1920×1080, 1280×720, 854×480
+
+### System
+- System tray icon
+- Close button behavior: exit or minimize to tray
+- Single-instance lock
+- Logs written to `log.txt` (alongside the executable)
+- Portable `config.ini`
 
 ## Project Structure
 
 ```
 Eternal Recorder/
 ├── electron/
-│   ├── main.js              # Main Electron process
-│   └── preload.cjs           # IPC preload script
+│   ├── main.js                    # Main process (IPC, FFmpeg, RTMP, tray)
+│   ├── preload.cjs                # contextBridge API (~30 methods)
+│   └── destinations.dat           # Encrypted RTMP destinations
 ├── src/
+│   ├── main.jsx                   # React entry point
+│   ├── App.jsx                    # Window router (control | camera)
+│   ├── index.css                  # Global styles
 │   ├── components/
-│   │   ├── App.jsx             # Main router component
-│   │   ├── CameraView.jsx      # Floating camera window
-│   │   ├── ControlPanel.jsx   # Main control panel
-│   │   ├── ErrorBoundary.jsx   # Error boundary
+│   │   ├── ControlPanel.jsx       # Main panel with tabs
+│   │   ├── TabNavigation.jsx      # Tab navigation
+│   │   ├── RecorderTab.jsx        # Recording tab (~2000 lines)
+│   │   ├── ScenesTab.jsx          # Scene management tab
+│   │   ├── TransmissionTab.jsx    # RTMP streaming tab
+│   │   ├── SettingsTab.jsx        # Settings tab
+│   │   ├── CameraView.jsx         # Floating camera window
+│   │   └── ErrorBoundary.jsx      # React error handling
+│   ├── contexts/
+│   │   └── I18nContext.jsx        # Internationalization context
 │   ├── locales/
-│   │   ├── en.json           # English translations
-│   │   └── pt-br.json         # Portuguese translations
-│   ├── App.jsx              # React entry point
-│   ├── main.jsx             # Root rendering
-│   └── index.css            # Global styles
+│   │   ├── i18n.js                # i18next config (25 languages)
+│   │   ├── en.json                # English
+│   │   └── pt-br.json             # Portuguese (Brazil)
+│   │   └── ... (+23 languages)
+│   └── assets/
+│       └── logo.png               # App logo
 ├── build/
-│   └── eternalrecorder.ico  # Application icon
-├── dist/                     # Production build output
-├── dist_electron/             # Electron build output
-├── index.html                 # HTML entry point
-├── package.json              # Dependencies and scripts
-└── vite.config.js             # Vite configuration
+│   └── eternalrecorder.ico        # App icon
+├── dist/                          # React production build
+├── dist_electron/                 # Electron installers output
+├── index.html                     # HTML entry point
+├── package.json                   # Dependencies and scripts
+├── vite.config.js                 # Vite configuration
+└── .eslintrc.json                 # ESLint configuration
 ```
 
----
+## Installation & Development
 
-## Getting Started
+```bash
+git clone <repo>
+cd Eternal Recorder
+npm install
+npm run dev            # Starts Vite + Electron in dev mode
+npm run dev:react      # Vite dev server only
+npm run dev:electron   # Electron only (requires Vite running)
+```
 
-### Installation
+## Production Build
 
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start development:
-   ```bash
-   npm run dev
-   ```
-
-### Building for Production
-
-To build the application for Windows:
 ```bash
 npm run build
 ```
 
-This will generate two installers in `dist_electron/`:
-- `Eternal Recorder Setup x.x.x.exe` - NSIS installer
-- `Eternal Recorder x.x.x.exe` - Portable executable
+Output in `dist_electron/`:
+- Windows: `Eternal Recorder Setup x.x.x.exe` (NSIS) + portable
+- Linux: `Eternal-Recorder-x.x.x-linux-x86_64.AppImage` + `.deb`
 
----
+## IPC Communication
 
-## Configuration
+The app exposes ~30 IPC channels via `window.electronAPI` (preload.cjs):
 
-### Recorder Tab (Screen Recording)
+| Channel | Purpose |
+|---------|---------|
+| `get-desktop-sources` | List available screens |
+| `get-window-sources` | List available windows |
+| `set-display-media-source` | Set capture source |
+| `save-recording` | Save video with FFmpeg conversion |
+| `save-audio-alongside` | Save separate audio (multi-audio) |
+| `set-camera-source` | Switch camera source |
+| `toggle-camera-window` | Show/hide camera window |
+| `set-border-color` | Update camera border |
+| `resize-camera` | Resize camera window |
+| `drag-window` | Drag camera window |
+| `read-config` / `write-config` | Read/write config.ini |
+| `get-scenes` / `save-scenes` | Scene persistence |
+| `get-shortcuts` / `save-shortcuts` | Keyboard shortcuts |
+| `get-recording-settings` / `save-recording-settings` | Recording quality |
+| `start-rtmp-stream` / `stop-rtmp-stream` / `stream-chunk` | RTMP streaming |
+| `load-rtmp-destinations` / `save-rtmp-destinations` | Encrypted destinations |
+| `set-recording-status` | Update tray status |
 
-The Recorder tab allows you to configure and start screen recording with camera overlay.
+## Requirements
 
-**Available Options:**
-
-1. **Screen Selection**: Choose which screen to record
-2. **Camera Source**: Select your camera device
-3. **Microphone**: Select your microphone
-4. **System Audio**: Toggle to record system audio
-5. **Camera Border**: Customize floating camera window border
-
-**Recording Controls:**
-- Start Recording: Begins capturing screen and audio
-- Pause Recording: Temporarily pause the recording
-- Stop Recording: Saves the recording to disk
-
-**Camera Border Options:**
-- Primary Color: Choose the main border color
-- Gradient Mode: Enable gradient between two colors
-- Secondary Color: Choose the second color for gradient
-- Neon Glow: Add glowing effect to the border
-
-**Video Format:**
-- Currently supports: WebM (VP9/VP8)
-- Note: MP4 and MKV formats require transcoding (not yet implemented)
-
-### Settings Tab
-
-Configure application preferences.
-
-**Available Options:**
-
-1. **Language Selection**
-   - English
-   - Portuguese (Brazil)
-
-### Transmission Tab (Live Streaming)
-
-**Note**: This feature is currently in development. Full RTMP streaming implementation is planned for a future release.
-
-**Available Options:**
-
-1. **Add RTMP Destination**
-   - Pre-configured platforms: YouTube, Facebook, Twitch
-   - Custom RTMP destinations
-   - Each destination requires:
-     - Stream URL (RTMP endpoint)
-     - Stream Key (channel key)
-     - Custom name for identification
-
-2. **Streaming Controls**
-   - Start Streaming: Begin streaming to all configured destinations
-   - Stop Streaming: Stop streaming to all destinations
-   - Individual Destination Control: Start/stop per destination
-
-3. **Active Streams**
-   Streams are saved automatically
-- Active streams persist across sessions
-- Can manage multiple simultaneous streams
-
----
-
-## Technical Details
-
-### Architecture
-
-**Main Process (Electron)**
-- Window management
-- IPC communication
-- Desktop source enumeration
-- File save dialog
-- RTMP streaming (planned)
-
-**Renderer Process (React)**
-- Tab-based navigation
-- i18n support with multiple languages
-- MediaRecorder API for screen capture
-- AudioContext for audio mixing
-- Local storage persistence
-
-### IPC Communication
-
-The application uses Electron's IPC (Inter-Process Communication) for communication between main and renderer processes:
-
-| Channel | Purpose | Direction |
-|---------|---------|----------|
-| `get-desktop-sources` | Get screen recording sources | Renderer -> Main |
-| `save-recording` | Save recorded video buffer | Renderer -> Main |
-| `set-camera-source` | Update camera source | Renderer -> Main -> Camera |
-| `set-border-color` | Update camera border style | Renderer -> Main -> Camera |
-| `resize-camera` | Resize camera window | Renderer -> Main -> Camera |
-| `drag-window` | Drag camera window | Renderer -> Main |
-
----
+- **Windows**: Windows 10+ (x64)
+- **Linux**: Distribution with PipeWire or X11 support
+- **FFmpeg**: Bundled via `@ffmpeg-installer` (Windows/Linux)
 
 ## Known Limitations
 
-### Recording Format
-- Only WebM format is supported natively by MediaRecorder API
-- MP4 and MKV formats would require FFmpeg transcoding (not yet implemented)
-- To support MP4/MKV, backend transcoding service would be required
-
-### Live Streaming
-- Currently displays placeholder UI only
-- No actual RTMP streaming implementation
-- RTMP server integration planned for future release
-
-### Platform
-- Windows only (no macOS/Linux support yet)
-- Requires Windows 10 or later
-
----
-
-## Development
-
-### Scripts
-
-```bash
-npm run dev          # Start development server
-npm run dev:react    # Start Vite dev server only
-npm run dev:electron  # Start Electron only
-npm run build          # Build for production
-npm run preview       # Preview production build
-```
-
-### Technology Stack
-
-- **Electron** v30.0.1 - Desktop framework
-- **React** v18.2.0 - UI library
-- **Vite** v5.2.0 - Build tool and dev server
-- **i18next** v25.10.5 - Internationalization
-- **rtmp-server** v0.2.0 - RTMP streaming
-
----
-
-## Resources
-
-- [Official Documentation](https://www.electronjs.org/docs/)
-- [React Documentation](https://react.dev/)
-- [Vite Documentation](https://vitejs.dev/)
-
----
+- WebM is the only native MediaRecorder format; MP4/MKV require FFmpeg
+- System audio not available in window capture mode (Chromium limitation)
+- ASIO devices need FlexASIO or ASIO4ALL as a WASAPI bridge
 
 ## Links
 
 - Website: https://eternal-legend.com.br/eternalrecorder/
-
----
-
-## Troubleshooting
-
-### Recording Issues
-- If screen sources don't load: Try refreshing the application
-- If camera doesn't show: Check camera permissions in system settings
-- If audio recording fails: Verify audio device permissions
-- For best quality: Use wired connection if possible
-
-### Performance
-- Close other applications during recording
-- Use recommended recording settings
-- Ensure sufficient disk space
-
----
+- Linux Releases: https://github.com/azurejoga/eternalrecorder/releases
 
 ## License
 
-Copyright 2026 Eternal Recorder. All rights reserved.
-
-For more information about usage and redistribution, please visit https://eternal-legend.com.br/
-
----
-
-## Credits
-
-- Development: eternal legend
-- Technologies: Electron, React, Vite, i18next, rtmp-server
-- Design: Minimalist, accessible, professional
-
----
-
-## Future Roadmap
-
-### Planned Features
-- Recording history
-- Multiple audio device support- Advanced camera effects and filters
-- Cloud storage integration
+© 2026 Eternal Recorder. All rights reserved.
