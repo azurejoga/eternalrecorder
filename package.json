@@ -1,0 +1,121 @@
+{
+    "name": "eternal-recorder",
+    "private": true,
+    "version": "1.1.8",
+    "description": "Eternal Recorder - Gravador de tela com câmera flutuante",
+    "author": "Eternal legend",
+    "main": "electron/main.js",
+    "type": "module",
+    "scripts": {
+        "dev": "cross-env NODE_OPTIONS=--no-deprecation concurrently -k \"npm run dev:react\" \"wait-on http://localhost:5173 && npm run dev:electron\"",
+        "dev:react": "vite",
+        "dev:electron": "cross-env NODE_ENV=development electron .",
+        "build": "vite build && electron-builder",
+        "preview": "vite preview",
+        "lint": "eslint src --ext .js,.jsx",
+        "lint:fix": "eslint src --ext .js,.jsx --fix",
+        "format": "prettier --write \"src/**/*.{js,jsx,json}\""
+    },
+    "dependencies": {
+        "@ffmpeg-installer/ffmpeg": "^1.1.0",
+        "fluent-ffmpeg": "^2.1.3"
+    },
+    "optionalDependencies": {
+        "@ffmpeg-installer/linux-x64": "^4.1.0",
+        "@ffmpeg-installer/win32-x64": "^4.1.0"
+    },
+    "build": {
+        "appId": "com.eternallegend.eternalrecorder",
+        "productName": "Eternal Recorder",
+        "directories": {
+            "output": "dist_electron"
+        },
+        "compression": "maximum",
+        "electronLanguages": [
+            "en",
+            "pt-BR",
+            "es",
+            "fr",
+            "de",
+            "it",
+            "ja",
+            "zh-CN",
+            "zh-TW",
+            "vi",
+            "th",
+            "hi",
+            "nl",
+            "af",
+            "el",
+            "ru",
+            "uk",
+            "ko",
+            "tr",
+            "ar",
+            "he",
+            "ca",
+            "eo",
+            "bo"
+        ],
+        "files": [
+            "dist/**/*",
+            "electron/**/*",
+            "!node_modules/**/{test,tests,spec,__tests__,docs,example,examples}/**",
+            "!node_modules/**/*.{md,ts,map,txt}",
+            "!node_modules/**/README*",
+            "!node_modules/**/CHANGELOG*",
+            "!node_modules/**/LICENSE*",
+            "!node_modules/**/.npmignore",
+            "!node_modules/**/.eslintrc*"
+        ],
+        "extraFiles": [
+            {
+                "from": "electron/version.txt",
+                "to": "version.txt"
+            }
+        ],
+        "asarUnpack": [
+            "node_modules/@ffmpeg-installer/win32-x64/**/*",
+            "node_modules/@ffmpeg-installer/linux-x64/**/*",
+            "build/**/*"
+        ],
+        "win": {
+            "icon": "build/eternalrecorder.ico",
+            "target": [
+                "nsis",
+                "portable"
+            ]
+        },
+        "linux": {
+            "icon": "build/icons",
+            "target": [
+                "AppImage",
+                "deb"
+            ],
+            "category": "Utility",
+            "description": "Eternal Recorder - Screen recorder with floating camera",
+            "maintainer": "Eternal Legend",
+            "artifactName": "Eternal-Recorder-${version}-linux-${arch}.${ext}"
+        }
+    },
+    "devDependencies": {
+        "@types/react": "^18.2.66",
+        "@types/react-dom": "^18.2.22",
+        "@vitejs/plugin-react": "^4.2.1",
+        "concurrently": "^8.2.2",
+        "cross-env": "^7.0.3",
+        "electron": "^30.0.1",
+        "electron-builder": "^24.13.3",
+        "eslint": "^9.0.0",
+        "eslint-plugin-react": "^7.34.0",
+        "eslint-plugin-react-hooks": "^5.0.0",
+        "eslint-plugin-jsx-a11y": "^6.8.0",
+        "i18next": "^25.10.5",
+        "prettier": "^3.2.0",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-i18next": "^16.6.2",
+        "vite": "^5.2.0",
+        "wait-on": "^7.2.0"
+    }
+}
